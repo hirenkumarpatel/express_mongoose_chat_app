@@ -4,6 +4,10 @@ const express = require("express");
 const bodyParser = require("body-parser");
 //creating instance of express
 const app = express();
+//importing user controller
+const userRouter=require("./routes/userController");
+//importing messageRouter
+const messageRouter=require("./routes/messageController");
 //importing path to access file directories and its path functions
 const path = require("path");
 const port = process.env.PORT || 3000;
@@ -14,9 +18,12 @@ const http = require("http").Server(app);
 const io = require("socket.io")(http);
 //importing mongoose database
 const mongoose = require("mongoose");
+//to hide some sensetive info like passwords 
+const dotenv=require("dotenv");
+//to configure dotenv variable to process's environment variable
+dotenv.config();
 //url of database and credential
-const mongooseURL =
-  "mongodb+srv://hirenpatel:hirenpatel@chatapp-gssy1.mongodb.net/test?retryWrites=true&w=majority";
+const mongooseURL =  process.env.DB_CONNECT;
 const mongooseOptions = { useNewUrlParser: true };
 // to include promise library to avoid nested callback hell
 mongoose.Promise = Promise;
@@ -25,54 +32,18 @@ app.use(express.static(path.join(__dirname, "/public")));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-//defining model for mongoose schema
-const Message = mongoose.model("Message", {
-  name: String,
-  message: String,
-  date: {
-    type: Date,
-    default: Date.now
-  }
-});
-//defining message json value as if we are importing from database
-let messages = [
-  { name: "Hiren", message: "Hii" },
-  { name: "Jane", message: "Hello" },
-  { name: "Hiren", message: "How are you?" }
-];
+//Middleware tto pass route to user router on /user
+app.use("/user",userRouter);
 
-//default layout
-app.get("/", (req, res) => {
-  res.send(path.join(__dirname, "/public", "/index.html"));
-});
-
-//messages json file
-app.get("/messages", (req, res) => {
-  Message.find({}, (err, message) => {
-    res.json(message);
-  });
-});
-//post new message
-app.post("/messages", async (req, res) => {
-  try {
-    //creating the object of mongoose's Datamodel Message and pass new  value
-    let message = new Message(req.body);
-    let savedMessage = await message.save();
-    let censored = await Message.findOne({ message: "badword" });
-    if (censored) await Message.deleteOne({ _id: censored.id });
-    //triggring custom event handling to notify all connected user about new message notification
-    else io.emit("message", req.body);
-    res.sendStatus(200);
-    res.json(JSON.stringify(req.body));
-  } catch (error) {
-     res.sendStatus(500);
-     console.log(`error ${error}`)
-  }
-});
+//Middleware tto pass route to user router on /user
+app.use("/messages",messageRouter);
 
 //handling io on new connection event
 io.on("connection", socket => {
-  console.log("new user connected!!");
+  console.log("new user connected:"+socket.id);
+  socket.on("disconnect",()=>{
+    console.log("user disconnected!");
+  });
 });
 //connecting to database
 mongoose.connect(mongooseURL, mongooseOptions, err => {

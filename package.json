@@ -2,14 +2,18 @@
   "name": "node_express_chat_app",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "chatapp-server.js",
   "scripts": {
     "start": "nodemon server.js"
   },
   "author": "Hiren Patel",
   "license": "ISC",
   "devDependencies": {
+    "@hapi/joi": "^15.1.1",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^8.1.0",
     "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.6.13"
   },
   "dependencies": {

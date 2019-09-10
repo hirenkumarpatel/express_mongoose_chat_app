@@ -1,29 +1,46 @@
-const router = require("express").Router();
+const app=require("express");
+const router =app.Router();
+//this is node's module
+const http = require("http").Server(app);
+//imported socket and linked with node
+const io = require("socket.io")(http);
+
 const { newChatValidation } = require("../lib/inputValidation");
 const verifyToken = require("../lib/verifyToken");
 const messageModel = require("../models/Message");
+//const io=require("../server");
 
+//handling io on new connection event
+// io.on("connection", socket => {
+//   console.log("new user connected:"+socket.id);
+//   socket.on("disconnect",()=>{
+//     console.log("user disconnected!");
+//   });
+//   socket.on("message",(data)=>{
+//     io.emit("message",data);
+//   });
+  
+// });
 //messages json file(/message)
-router.get("/", verifyToken, (req, res) => {
+router.get("/",verifyToken, (req, res) => {
   messageModel.find({}, (err, message) => {
     res.json(message);
   });
+  
 });
 
 //post new message
-router.post("/messages",verifyToken, async (req, res) => {
+router.post("/",verifyToken, async (req, res) => {
   try {
     //creating the object of mongoose's Datamodel Message and pass new  value
-    let message = new Message(req.body);
+    let message = new messageModel(req.body);
     let savedMessage = await message.save();
-    let censored = await messageModel.findOne({ message: "badword" });
-    if (censored) await messageModel.deleteOne({ _id: censored.id });
-    //triggring custom event handling to notify all connected user about new message notification
-    else io.emit("message", req.body);
-    res.sendStatus(200);
-    res.json(JSON.stringify(req.body));
+    //io.emit("message", req.body);
+    res.status(200);
+    res.json(req.body);
+    
   } catch (error) {
-     res.sendStatus(500);
+     res.status(500).send({error:error});
      console.log(`error ${error}`)
   }
 });

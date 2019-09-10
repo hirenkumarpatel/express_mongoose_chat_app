@@ -2,7 +2,7 @@
 var socket = io();
 $(() => {
   //variable initialization
-  // const messageList=$(`#message-list`);
+  const messageList = $(`#message-list`);
   const registerButton = $(`#register-button`);
   const registerName = $(`#register-name-input`);
   const registerEmail = $(`#register-email-input`);
@@ -10,14 +10,21 @@ $(() => {
   const loginButton = $(`#login-button`);
   const loginEmail = $(`#login-email-input`);
   const loginPassword = $(`#login-password-input`);
-  const chatSection=$(`#chat-section`);
-  const loginSection=$(`#login-section`);
+  const chatSection = $(`#chat-section`);
+  const loginSection = $(`#login-section`);
   const sendButton = $(`#send-button`);
   const nameInput = $(`#name-input`);
   const messageInput = $(`#message-input`);
-  //make chat disable till login finish
-  chatSection.hide();
-  
+  let authToken;
+  if (authToken) {
+    chatSection.show();
+    loginSection.hide();
+  } else {
+    //make chat disable till login finish
+    chatSection.hide();
+    loginSection.show();
+  }
+
   // const nameInput=$(`#name-input`);
   // const messageInput=$(`#message-input`);
 
@@ -41,12 +48,11 @@ $(() => {
         return res.json();
       })
       .then(data => {
-          if(!data.error){
-              console.log("user registred..");
-          }
-          else{
-            console.log("Error"+JSON.stringify(data));
-          }
+        if (!data.error) {
+          console.log("user registred..");
+        } else {
+          console.log("Error" + JSON.stringify(data));
+        }
       })
       .catch(err => {
         console.log("Error in new user registration");
@@ -73,56 +79,71 @@ $(() => {
         return res.json();
       })
       .then(data => {
-          if(!data.error){
-              console.log("user logged in.."+JSON.stringify(data.token));
-              loginSection.hide();
-              chatSection.show();
-          }
-          else{
-            console.log("Error"+JSON.stringify(data));
-          }
-      })
+        if (!data.error) {
+          authToken = JSON.stringify(data.token);
+          //remove first and last " "'s from string
+          authToken = authToken.substring(1, authToken.length - 1);
+          console.log("user logged in.." + authToken);
+          loginSection.hide();
+          chatSection.show();
+          getMessages(authToken);
+        } else {
+          console.log("Error" + JSON.stringify(data));
+        }
+      });
     //   .catch(err => {
     //     console.log("Error in new user login:"+err);
     //   });
   };
 
-  // ***************dont touchh this code now******************
+  //get messages
+  let getMessages = data => {
+    fetch("/messages", {
+      headers: { "auth-token": data }
+    })
+      .then(res => {
+        return res.json();
+      })
+      .then(data => {
+        if (data.length) data.forEach(addMessage);
+      });
+  };
+
   // add message function to add new message to message list
-  let addMessage=(data)=>{
-  messageList.append(`<span style="font-size:1.2rem">${data.name}: </span><p>${data.message}</p>`);
-  }
-  
-  //handling triggred event and create new message
-  socket.on("message",addMessage);
+  let addMessage = data => {
+    messageList.append(
+      `<span style="font-size:1.2rem">${data.name}: </span><p>${data.message}</p>`
+    );
+  };
+  //handling triggred event and create new message shoud be out of any function
+  //socket.on("message", addMessage(data));
 
   //function to send message to message-list
-  sendButton.on('click',()=>{
-      var data={name:nameInput.val(),message:messageInput.val()}
-      postMessages(data);
+  sendButton.on("click", () => {
+    var data = { name: nameInput.val(), message: messageInput.val() };
+    // socket.emit("message",data);
+    postMessages(data, authToken);
   });
-  let getMessages=()=>{
-      fetch("/messages")
-      .then((res)=>{
-          return res.json();
-      }).then((data)=>{
-          data.forEach(addMessage);
-      });
-  }
-  //get messages
-  getMessages();
-  let postMessages=(data)=>{
-      fetch("/messages",{
-          method:"POST",
-          headers:{"Content-Type":"application/json;charset=utf-8"},
-          body:JSON.stringify(data)
+
+  let postMessages = (data, authToken) => {
+      fetch("/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json;charset=utf-8",
+          "auth-token": authToken
+        },
+        body: JSON.stringify(data)
       })
-      .then((res)=>{
-          return res.json()
-      }).then((data)=>{
+        .then(res => {
+          return res.json();
+        })
+        .then(data => {
           addMessage(data);
-      }).catch(err=>{
-          console.log("Error in new message post");
-      });
-  }
+          console.log("new message posted!!");
+        })
+     .catch (error=>{
+      console.log("Error in post method:" + error);
+     }) 
+  };
+  //end of document.ready..
 });

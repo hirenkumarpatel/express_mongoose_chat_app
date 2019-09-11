@@ -40,6 +40,18 @@ app.use("/user",userRouter);
 //Middleware tto pass route to user router on /user
 app.use("/messages",messageRouter);
 
+//handling io on new connection event
+io.on("connection", socket => {
+  console.log(`user connected: ${socket.id}`);
+  socket.on("disconnect", () => {
+    console.log(`${socket.id} user disconnected!`);
+  });
+  socket.on('message',data=>{
+    socket.broadcast.emit('message',data);
+  })
+});
+
+
 //connecting to database
 mongoose.connect(mongooseURL, mongooseOptions, err => {
   if (err) throw err;

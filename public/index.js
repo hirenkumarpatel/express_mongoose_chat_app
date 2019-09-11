@@ -112,19 +112,19 @@ $(() => {
   // add message function to add new message to message list
   let addMessage = data => {
     messageList.append(
-      `<span style="font-size:1.2rem">${data.name}: </span><p>${data.message}</p>`
+      `<p>${data.message}</p>`
     );
   };
-  //handling triggred event and create new message shoud be out of any function
-  //socket.on("message", addMessage(data));
-
+  
   //function to send message to message-list
   sendButton.on("click", () => {
-    var data = { name: nameInput.val(), message: messageInput.val() };
-    // socket.emit("message",data);
+    var data = { message: messageInput.val() };
+    
     postMessages(data, authToken);
   });
-
+  socket.on("message",(data)=>{
+    addMessage(data);
+  });
   let postMessages = (data, authToken) => {
       fetch("/messages", {
         method: "POST",
@@ -138,8 +138,11 @@ $(() => {
           return res.json();
         })
         .then(data => {
-          addMessage(data);
-          console.log("new message posted!!");
+          if(!data.error){
+            socket.emit("message",data);
+            console.log("new message posted!!");
+          }
+          
         })
      .catch (error=>{
       console.log("Error in post method:" + error);

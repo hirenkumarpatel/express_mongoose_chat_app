@@ -5,27 +5,27 @@ const bodyParser = require("body-parser");
 //creating instance of express
 const app = express();
 //importing user controller
-const userRouter=require("./routes/userController");
+const userRouter = require("./routes/userController");
 //importing messageRouter
-const messageRouter=require("./routes/messageController");
+const messageRouter = require("./routes/messageController");
 //importing path to access file directories and its path functions
 const path = require("path");
 const port = process.env.PORT || 3000;
 //in order to make soket.io workd we have to include node first and then can connect it to express and socket
- //this is node's module
- const http = require("http").Server(app);
- //imported socket and linked with node
- const io = require("socket.io")(http);
+//this is node's module
+const http = require("http").Server(app);
+//imported socket and linked with node
+const io = require("socket.io")(http);
 
 //importing mongoose database
 const mongoose = require("mongoose");
-//to hide some sensetive info like passwords 
-const dotenv=require("dotenv");
+//to hide some sensetive info like passwords
+const dotenv = require("dotenv");
 //to configure dotenv variable to process's environment variable
 dotenv.config();
 
 //url of database and credential
-const mongooseURL =  process.env.DB_CONNECT;
+const mongooseURL = process.env.DB_CONNECT;
 const mongooseOptions = { useNewUrlParser: true };
 // to include promise library to avoid nested callback hell
 // mongoose.Promise = Promise;
@@ -33,12 +33,18 @@ const mongooseOptions = { useNewUrlParser: true };
 app.use(express.static(path.join(__dirname, "/public")));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+const filepath = path.join(__dirname, "/public");
+
+//sending index.html file to server
+app.get("/", (req, res) => {
+  res.sendFile(`${filepath}/index.html`);
+});
 
 //Middleware to pass route to user router on /user
-app.use("/user",userRouter);
+app.use("/user", userRouter);
 
 //Middleware tto pass route to user router on /user
-app.use("/messages",messageRouter);
+app.use("/messages", messageRouter);
 
 //handling io on new connection event
 io.on("connection", socket => {
@@ -46,11 +52,13 @@ io.on("connection", socket => {
   socket.on("disconnect", () => {
     console.log(`${socket.id} user disconnected!`);
   });
-  socket.on('message',data=>{
-    socket.broadcast.emit('message',data);
-  })
+  socket.on("message", data => {
+    io.emit("displayMessage", data);
+  });
+  socket.on("typingMessage", data => {
+   socket.broadcast.emit("displayTypingStatus", data);
+  });
 });
-
 
 //connecting to database
 mongoose.connect(mongooseURL, mongooseOptions, err => {

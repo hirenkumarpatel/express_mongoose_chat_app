@@ -15,6 +15,7 @@ $(() => {
   const sendButton = $(`#send-button`);
   const nameInput = $(`#name-input`);
   const messageInput = $(`#message-input`);
+  const typingLabel = $(`#typing-label`);
   let authToken;
   if (authToken) {
     chatSection.show();
@@ -24,9 +25,6 @@ $(() => {
     chatSection.hide();
     loginSection.show();
   }
-
-  // const nameInput=$(`#name-input`);
-  // const messageInput=$(`#message-input`);
 
   //register new user
   registerButton.on("click", () => {
@@ -91,9 +89,28 @@ $(() => {
           console.log("Error" + JSON.stringify(data));
         }
       });
-    //   .catch(err => {
-    //     console.log("Error in new user login:"+err);
-    //   });
+  };
+
+  // emitting typing.. status to receivevr working dont change
+  let updateTypingstatus = () => {
+    var typing;
+    messageInput.on("input propertychange paste", () => {
+      if (messageInput.val().length > 0) {
+        typing = true;
+        socket.emit("typingMessage", "typing..");
+      }else{
+        socket.emit("typingMessage", " ");
+      }
+    });
+   
+  };
+  updateTypingstatus();
+  socket.on("displayTypingStatus", data => {
+    displayTypingStatus(data);
+  });
+  displayTypingStatus = data => {
+    console.log(`typing message called`);
+    typingLabel.text(data);
   };
 
   //get messages
@@ -111,42 +128,38 @@ $(() => {
 
   // add message function to add new message to message list
   let addMessage = data => {
-    messageList.append(
-      `<p>${data.message}</p>`
-    );
+    messageList.append(`<p>${data.message}</p>`);
   };
-  
+
   //function to send message to message-list
   sendButton.on("click", () => {
     var data = { message: messageInput.val() };
-    
+
     postMessages(data, authToken);
   });
-  socket.on("message",(data)=>{
+  socket.on("displayMessage", data => {
     addMessage(data);
   });
   let postMessages = (data, authToken) => {
-      fetch("/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json;charset=utf-8",
-          "auth-token": authToken
-        },
-        body: JSON.stringify(data)
+    fetch("/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json;charset=utf-8",
+        "auth-token": authToken
+      },
+      body: JSON.stringify(data)
+    })
+      .then(res => {
+        return res.json();
       })
-        .then(res => {
-          return res.json();
-        })
-        .then(data => {
-          if(!data.error){
-            socket.emit("message",data);
-            console.log("new message posted!!");
-          }
-          
-        })
-     .catch (error=>{
-      console.log("Error in post method:" + error);
-     }) 
+      .then(data => {
+        if (!data.error) {
+          socket.emit("message", data);
+        }
+      })
+      .catch(error => {
+        console.log("Error in post method:" + error);
+      });
   };
   //end of document.ready..
 });

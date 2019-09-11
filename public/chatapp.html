@@ -21,16 +21,19 @@
   <body>
     <br />
     <div class="container">
-      <div class="jumbotron">
-        <h1 class="display-4">Send Message</h1>
-        <!-- message box -->
-      <form class="form-group">
+      
+      <!-- chats section starts here -->
+      <div id="chat-section"  style="display:flex;justify-content: space-between">
+        <div class="jumbotron" style="flex:1;margin-right:10px">
+          <h1 class="display-4">Send Message</h1>
+          <!-- chat process -->
+          <form class="form-group">
             <div class="form-group">
               <input
-                type="text"
+                type="name-input"
                 class="form-control"
                 id="name-input"
-                placeholder="Enter Name"
+                placeholder="Enter name"
               />
             </div>
             <div class="form-group">
@@ -38,16 +41,20 @@
                 type="text"
                 class="form-control"
                 id="message-input"
-                placeholder="Enter new message"
+                placeholder="Enter message"
               />
             </div>
-            <button type="button" id="sendButton" class="btn btn-primary mb-2">
+            <button type="button" id="send-button" class="btn btn-success mb-2">
               Send
             </button>
           </form>
-          <div id="message-list"></div>
-          <!-- end of jumbotrane -->
+        </div>
+        <div class="jumbotron" style=" flex:1" id="message-list"></div>
       </div>
+      <!-- chat section ends here -->
+
+      <!-- end of jumbotrane -->
+
       <!-- end of container -->
     </div>
 
@@ -70,6 +77,6 @@
     ></script>
     <!-- socket.io library -->
     <script src="/socket.io/socket.io.js"></script>
-    <script src="index.js"></script>
+    <script src="js/index.js"></script>
   </body>
 </html>

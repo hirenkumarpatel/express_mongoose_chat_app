@@ -7,6 +7,9 @@ const Message = mongoose.model("Message", {
     date: {
       type: Date,
       default: Date.now
+    },
+    status:{
+      type:String,default:"sent"
     }
   });
   module.exports= Message;

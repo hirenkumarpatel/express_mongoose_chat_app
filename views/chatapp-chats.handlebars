@@ -4,7 +4,7 @@
           <i class="fas fa-angle-left "></i>
           <div id="chatapp-title">
           <img src="../images/avatar1.PNG" class="avatar" alt="Avatar" />
-            <span>Hiren Patel</span>
+            <span>{{receiver.receiverName}}</span>
           </div>
         </section>
 
@@ -13,7 +13,7 @@
           <ul id="chat-history">
             {{# each data}}
             <div class="chat-list-item sender-chat">
-            <img src="../images/avatar1.PNG" alt="Avatar" />
+            <img src="../images/avatar1.PNG" alt="Avatar" class="avatar" />
               <div class="chat-item-text">
                 <p>{{message}}</p>
                 <span class="chat-time"
@@ -33,6 +33,7 @@
         <section id="footer-section">
           <form id="chat-form" method="POST">
             <div class="new-chat-box">
+              <input type="hidden" name="chat-receiver" id="chat-receiver" value="{{receiver.receiverId}}">
               <input
                 type="text"
                 name="chat-input"

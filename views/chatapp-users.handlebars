@@ -1,68 +1,55 @@
- {{title}}
- <main>
-      <div class="container">
-        <section id="main-header-section" class="primary-color">
-          <div id="chatapp-title">
-            <i class="fas fa-comments "></i>
-            <span>Chatapp</span>
-          </div>
-        </section>
-
-        <!-- chat users-->
-        <section id="user-list-section">
-          <ul id="user-list">
-            <div class="user-list-item ">
-              <img src="/avatar1.PNG" alt="Avatar" />
-              <div class="user-item-text">
-                <h3 class="user-title">John Doe</h3>
-                <p>Hello. How are you today?</p>
-                <span class="chat-time">11:00 AM </span>
-              </div>
-              <div class="user-right-angle">
-                <i class="fas fa-angle-right"></i>
-              </div>
-            </div>
-            <div class="user-list-item ">
-              <img src="/avatar2.PNG" alt="Avatar" />
-              <div class="user-item-text">
-                <h3 class="user-title">Jane Smith</h3>
-                <p>Hello. How are you today?</p>
-                <span class="chat-time">11:00 AM </span>
-              </div>
-              <div class="user-right-angle">
-                <i class="fas fa-angle-right"></i>
-              </div>
-            </div>
-            <div class="user-list-item ">
-              <img src="/avatar1.PNG" alt="Avatar" />
-              <div class="user-item-text">
-                <h3 class="user-title">Williums Chris</h3>
-                <p>Hello. How are you today?</p>
-                <span class="chat-time">11:00 AM </span>
-              </div>
-              <div class="user-right-angle">
-                <i class="fas fa-angle-right"></i>
-              </div>
-            </div>
-          </ul>
-        </section>
-        <!-- user list-->
-
-        <!-- settings menu -->
-
-        <section id="footer-section" class="settings-section">
-          <div class="footer-menubar">
-            <button class="button-link primary-color" id="setings-button">
-              <i class="fas fa-cog "></i>
-            </button>
-            <button class="button-link primary-color" id="setings-button">
-              <i class="fas fa-user-friends "></i>
-            </button>
-            <button class="button-link primary-color" id="setings-button">
-              <i class="fas fa-comment-alt "></i>
-            </button>
-          </div>
-        </section>
-        <!-- new chat section -->
+{{#each data}}
+<h3>{{data}}</h3>
+{{/each}}
+<main>
+  <div class="container">
+    <section id="main-header-section" class="primary-color">
+      <div id="chatapp-title">
+        <i class="fas fa-comments "></i>
+        <span>Chatapp</span>
       </div>
-    </main>
+    </section>
+
+    <!-- chat users-->
+    <section id="user-list-section">
+      <ul id="user-list">
+        {{#if data}}
+        {{#each data}}
+        <a class="user-list-item" id={{this._id}}>
+          <img src="../images/avatar1.PNG" alt="Avatar" class="avatar" />
+          <div class="user-item-text">
+            <h3 class="user-title">{{this.name}}</h3>
+            <p>sample message</p>
+            <span class="chat-time">11:00 AM </span>
+          </div>
+          <div class="user-right-angle">
+            <i class="fas fa-angle-right"></i>
+          </div>
+        </a>
+        {{/each}}
+        {{else}}
+        <h3>No User Found!</h3>
+        {{/if}}
+
+      </ul>
+    </section>
+    <!-- user list-->
+
+    <!-- settings menu -->
+
+    <section id="footer-section" class="settings-section">
+      <div class="footer-menubar">
+        <button class="button-link primary-color" id="setings-button">
+          <i class="fas fa-cog "></i>
+        </button>
+        <button class="button-link primary-color" id="setings-button">
+          <i class="fas fa-user-friends "></i>
+        </button>
+        <button class="button-link primary-color" id="setings-button">
+          <i class="fas fa-comment-alt "></i>
+        </button>
+      </div>
+    </section>
+    <!-- new chat section -->
+  </div>
+</main>

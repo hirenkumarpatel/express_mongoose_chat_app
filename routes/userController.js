@@ -14,10 +14,26 @@ const {
   registerUserValidation,
   loginUserValidation
 } = require("../lib/inputValidation");
+// const {requireLogin } = require("../lib/authenticateUser");
+
+// test
+//importing authenticateUser module to authenticate user
+const { authenticateUser, requireLogin } = require("../lib/authenticateUser");
+
+//using authenticateUser middleware
+router.use(authenticateUser);
+
+
+//retrive all users in user tab excepts loggedin user
+router.get("/",requireLogin,(req,res)=>{
+ //all user except loggedin user
+  userModel.find({_id:{$ne :req.session.user.userId}}, (err, data) => {
+    res.render("chatapp-users", {title:"Users-Chatapp", data: data });
+  });
+}) 
 
 //route to get login page
 router.get("/login", (req, res, next) => {
-  console.log('loginform: '+req.session.user);
   res.render("login", { title: `Login-Chattapp`, success: false, error: "" });
 });
 
@@ -56,7 +72,7 @@ router.post("/register", async (req, res) => {
 
 //Login process
 router.post("/login", async (req, res) => {
-  console.log("login:post:"+req.session.user);
+ 
   //input level validation
   const { error } = loginUserValidation(req.body);
   if (error) return res.status(400).send({ error: error.details[0].message });
@@ -74,7 +90,6 @@ router.post("/login", async (req, res) => {
       return res.status(400).send({ error: "Invalid Password !!" });
 
     // sets a cookie with the user's info
-   
     req.session.user = user._id;
     res.status(200).send({ message: "login successful!!", error: null });
   }

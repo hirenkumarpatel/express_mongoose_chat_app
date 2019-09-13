@@ -37,6 +37,7 @@ li > a {
   justify-content:flex-start;
   align-items: center;
   padding:0.5rem;
+  max-height:2.80rem;
 }
 #header-section>i{
   margin-right:1rem;
@@ -53,6 +54,7 @@ li > a {
   justify-content:center;
   align-items: center;
   padding:0.9rem 0.5rem;
+  max-height:2.80rem;
 }
 #main-header-section>div{
   display:flex;
@@ -142,7 +144,7 @@ i {
   background: #1abc9c;
   color: #fff;
 }
-.chat-list-item>img ,.user-list-item>img{
+.avatar{
   max-width: 2.5rem;
   max-height: 2.5rem;
   border-radius: 50%;
@@ -182,6 +184,7 @@ i {
   color: #525252;
   border-radius: 15px;
   background: #d4d4d4;
+  cursor:pointer;
 }
 .user-list-item h3{
   color:#5b2c6f;

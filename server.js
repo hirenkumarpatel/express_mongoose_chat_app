@@ -2,8 +2,10 @@
 const express = require("express");
 //importing body-parser to parse object in json data
 const bodyParser = require("body-parser");
-//creating instance of express
-const app = express();
+//express handlebars area to handle partial html view rendered in html page
+const expHandlebars=require("express-handlebars");
+//importing session
+const session=require("client-sessions");
 //importing user controller
 const userRouter = require("./routes/userController");
 //importing messageRouter
@@ -13,10 +15,11 @@ const path = require("path");
 const port = process.env.PORT || 3000;
 //in order to make soket.io workd we have to include node first and then can connect it to express and socket
 //this is node's module
+//creating instance of express
+const app = express();
 const http = require("http").Server(app);
 //imported socket and linked with node
 const io = require("socket.io")(http);
-
 //importing mongoose database
 const mongoose = require("mongoose");
 //to hide some sensetive info like passwords
@@ -27,24 +30,35 @@ dotenv.config();
 //url of database and credential
 const mongooseURL = process.env.DB_CONNECT;
 const mongooseOptions = { useNewUrlParser: true };
-// to include promise library to avoid nested callback hell
-// mongoose.Promise = Promise;
 //Middleware function to make static files availbale to web server
-app.use(express.static(path.join(__dirname, "/public")));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
 const filepath = path.join(__dirname, "/public");
+app.use(express.static(filepath));
+//to parse request object in json format
+app.use(bodyParser.json());
+//to parse html input values
+app.use(bodyParser.urlencoded({ extended: false }));
 
-//sending index.html file to server
-app.get("/", (req, res) => {
-  res.sendFile(`${filepath}/index.html`);
-});
+
+//setting up handlebars for customized partial html page
+app.engine("handlebars",expHandlebars({extname:'.handlebars',layoutsDir:__dirname+'/views/layouts/',defaultLayout:'main'}));
+app.set("view engine","handlebars");
+
+//configuring session values
+app.use(session({
+  cookieName: 'session',//name of session cookie
+  secret: process.env.SECRET_KEY,//some secret key to encrypt
+  duration: 30 * 60 * 1000,//duration of session expire(30 minute)
+  activeDuration: 15 * 60 * 1000,//extend session duration by 15 minutes 
+  httpOnly: true,//only http can access cookie not javascript
+  secure: true,//works on https only
+  ephemeral: true//remove cookie after browser close
+}));
 
 //Middleware to pass route to user router on /user
-app.use("/user", userRouter);
+app.use("/", messageRouter);
 
 //Middleware tto pass route to user router on /user
-app.use("/messages", messageRouter);
+app.use("/user", userRouter);
 
 //handling io on new connection event
 io.on("connection", socket => {

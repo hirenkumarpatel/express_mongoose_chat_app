@@ -4,17 +4,17 @@ $(() => {
   //variable initialization
   const messageList = $(`#message-list`);
   const registerButton = $(`#register-button`);
-  const registerName = $(`#register-name-input`);
-  const registerEmail = $(`#register-email-input`);
-  const registerPassword = $(`#register-password-input`);
+  const userName = $(`#user-name`);
+  const userEmail = $(`#user-email`);
+  const userPassword = $(`#user-password`);
   const loginButton = $(`#login-button`);
   const loginEmail = $(`#login-email-input`);
   const loginPassword = $(`#login-password-input`);
   const chatSection = $(`#chat-section`);
   const loginSection = $(`#login-section`);
-  const sendButton = $(`#send-button`);
+  const sendButton = $(`#chat-send-button`);
   const nameInput = $(`#name-input`);
-  const messageInput = $(`#message-input`);
+  const messageInput = $(`#chatinput-box`);
   const typingLabel = $(`#typing-label`);
   let authToken;
   if (authToken) {
@@ -29,12 +29,13 @@ $(() => {
   //register new user
   registerButton.on("click", () => {
     var data = {
-      name: registerName.val(),
-      email: registerEmail.val(),
-      password: registerPassword.val()
+      name: userName.val(),
+      email: userEmail.val(),
+      password: userPassword.val()
     };
     registerUser(data);
   });
+
   //registerUser method will send respose to server to register new user
   let registerUser = data => {
     fetch("/user/register", {
@@ -47,21 +48,20 @@ $(() => {
       })
       .then(data => {
         if (!data.error) {
-          console.log("user registred..");
+          console.log(JSON.stringify(data));
+          //to redirect to chatapp application
+          //window.location.replace("http://localhost:3000/chatapp/");
         } else {
-          console.log("Error" + JSON.stringify(data));
+          console.log(`registration failed!!`);
         }
-      })
-      .catch(err => {
-        console.log("Error in new user registration");
       });
   };
 
   //login new user
   loginButton.on("click", () => {
     var data = {
-      email: loginEmail.val(),
-      password: loginPassword.val()
+      email: userEmail.val(),
+      password: userPassword.val()
     };
     //login user
     loginUser(data);
@@ -78,15 +78,11 @@ $(() => {
       })
       .then(data => {
         if (!data.error) {
-          authToken = JSON.stringify(data.token);
-          //remove first and last " "'s from string
-          authToken = authToken.substring(1, authToken.length - 1);
-          console.log("user logged in.." + authToken);
-          loginSection.hide();
-          chatSection.show();
-          getMessages(authToken);
+         console.log(JSON.stringify(data.message));
+         //to redirect to chatapp application
+         window.location.replace("http://localhost:3000/chatapp/");
         } else {
-          console.log("Error" + JSON.stringify(data));
+          console.log(`login failed error:${data.error}`);
         }
       });
   };
@@ -135,17 +131,16 @@ $(() => {
   sendButton.on("click", () => {
     var data = { message: messageInput.val() };
 
-    postMessages(data, authToken);
+    postMessages(data);
   });
   socket.on("displayMessage", data => {
     addMessage(data);
   });
   let postMessages = (data, authToken) => {
-    fetch("/messages", {
+    fetch("/chatapp", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json;charset=utf-8",
-        "auth-token": authToken
+        "Content-Type": "application/json;charset=utf-8"
       },
       body: JSON.stringify(data)
     })

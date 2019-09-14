@@ -92,9 +92,10 @@ router.post("/", requireLogin, async (req, res) => {
     let db = new messageModel(message);
     let savedMessage = await db.save((err, message) => {
       if (err) return res.status(400).send({ error: err });
+      
       //if message from logged in user or opponent
       let messageFrom =
-        message.sender == req.session.user.userId ? "sender" : "receiver";
+      message.sender == req.session.user.userId ? "sender" : "receiver";
       let date = new Date(message.date);
       let newMessage = {
         messageFrom: messageFrom,

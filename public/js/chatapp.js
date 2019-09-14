@@ -18,9 +18,15 @@ $(() => {
   const chatSendButton = $(`#chat-send-button`);
   const chatHistory = $(`#chat-history`);
   const chatReceiver = $(`#chat-receiver`);
-  let chatTypingLabel = $(`#chat-typing-label`);
+  let chatUserSubtitle = $(`#chat-user-subtitle`);
 
-  /** chat user screen initialization*/
+  /** socket variable initilization*/
+  let socketId;
+  socket.on('saveSocket',socket=>{
+    socketId=socket;
+    console.log(`new socket saved on client:${socketId}`);
+  })
+
 
   //get the user List Item Id to open chat accordingly
   let openUserChats = () => {
@@ -107,7 +113,6 @@ $(() => {
       })
       .then(data => {
         if (!data.error) {
-          console.log(JSON.stringify(data.message));
           //to redirect to chatapp application
           window.location.replace("http://localhost:3000/user");
         } else {
@@ -156,7 +161,7 @@ $(() => {
   //updateTypingTemplate will update typing labels status
   let updateTypingTemplate = data => {
     //change the label
-    chatTypingLabel.text(data);
+    chatUserSubtitle.text(data);
   };
 
   //send button's onClick() event handler
@@ -181,7 +186,6 @@ $(() => {
       .then(data => {
         if (!data.error) {
           socket.emit("newMessage", data);
-          //updateMessageHistory(data);
           clearForm();
         }
       });
@@ -206,11 +210,11 @@ $(() => {
     </div>
   </div>`);
 
-  //show last appended message
-  chatHistory.animate({scrollTop: chatHistory.prop("scrollHeight")}, 500);
+    //show last appended message
+    chatHistory.animate({ scrollTop: chatHistory.prop("scrollHeight") }, 500);
 
-  //update yping status
-  updateTypingTemplate('');
+    //update yping status
+    updateTypingTemplate("");
   };
 
   /** clears out form after sending it to server */

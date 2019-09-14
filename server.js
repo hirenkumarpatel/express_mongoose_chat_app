@@ -27,6 +27,9 @@ const dotenv = require("dotenv");
 //to configure dotenv variable to process's environment variable
 dotenv.config();
 
+//create json array that will store socket id and connected session id
+let clientList=[]; 
+
 //url of database and credential
 const mongooseURL = process.env.DB_CONNECT;
 const mongooseOptions = { useNewUrlParser: true };
@@ -62,12 +65,16 @@ app.use("/user", userRouter);
 
 //handling io on new connection event
 io.on("connection", socket => {
-  console.log(`user connected: ${socket.id}`);
+  console.log(`server::user connected on socket:${socket.id}`);
+  socket.emit('saveSocket',socket.id);
   socket.on("disconnect", () => {
     console.log(`${socket.id} user disconnected!`);
   });
   socket.on("newMessage", data => {
     io.emit("displayMessage", data);
+    //only send message privately to one socket 
+    //io.to(`${socketId}`).emit('hey', 'I just met you');
+
   });
   socket.on("typingMessage", data => {
    socket.broadcast.emit("displayTypingStatus", data);

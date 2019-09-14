@@ -27,31 +27,6 @@ router.get("/", requireLogin, (req, res) => {
   //all user except loggedin user
   userModel.find({ _id: { $ne: req.session.user.userId } }, (err, users) => {
     if (err) return res.status(400).send({ error: err });
-    // ********************************
-    console.log(users[0].name);
-
-    // *******************************
-    // if multiple users are exists then only check messages with them
-    if (users.length > 0) {
-      users.forEach(user => {
-        //querying for getting last message related to user
-        messageModel
-        .find({
-          $or: [
-            { sender: user._id },
-            { receiver: user._id }
-          ]
-        })
-        .sort({ date: -1 })
-        .limit(1),(err,message)=>{
-          //***************  start work from here */
-          console.log(message)
-        };
-
-      });
-      
-     
-    }
     //rending user page
     res.render("chatapp-users", { title: "Users-Chatapp", data: users });
   }); //end of first query
@@ -115,7 +90,7 @@ router.post("/login", async (req, res) => {
 
     // sets a cookie with the user's info
     req.session.user = user._id;
-    res.status(200).send({ message: "login successful!!", error: null });
+    res.status(200).send({user:req.session.user, message: "login successful!!", error: null });
   }
 });
 

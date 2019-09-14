@@ -23,7 +23,7 @@ router.get("/chatapp/:user", requireLogin, async (req, res) => {
   let receiverId = req.params.user;
   let receiver;
   let messages;
-  await messageModel.find({ receiver: receiverId }, (err, data) => {
+  await messageModel.find({$or:[{ receiver: receiverId },{sender:receiverId}]}, (err, data) => {
     if (err) return res.status(400).send({ error: err });
     messages = data;
     if (messages.length > 0) {

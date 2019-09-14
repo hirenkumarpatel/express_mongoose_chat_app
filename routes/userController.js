@@ -4,6 +4,8 @@ const router = require("express").Router();
 const session = require("client-sessions");
 //importing user model
 const userModel = require("../models/User");
+//importing message model
+const messageModel = require("../models/Message");
 //importing bcrypt and json web token to  hash password
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -14,23 +16,46 @@ const {
   registerUserValidation,
   loginUserValidation
 } = require("../lib/inputValidation");
-// const {requireLogin } = require("../lib/authenticateUser");
-
-// test
 //importing authenticateUser module to authenticate user
 const { authenticateUser, requireLogin } = require("../lib/authenticateUser");
 
 //using authenticateUser middleware
 router.use(authenticateUser);
 
-
 //retrive all users in user tab excepts loggedin user
-router.get("/",requireLogin,(req,res)=>{
- //all user except loggedin user
-  userModel.find({_id:{$ne :req.session.user.userId}}, (err, data) => {
-    res.render("chatapp-users", {title:"Users-Chatapp", data: data });
-  });
-}) 
+router.get("/", requireLogin, (req, res) => {
+  //all user except loggedin user
+  userModel.find({ _id: { $ne: req.session.user.userId } }, (err, users) => {
+    if (err) return res.status(400).send({ error: err });
+    // ********************************
+    console.log(users[0].name);
+
+    // *******************************
+    // if multiple users are exists then only check messages with them
+    if (users.length > 0) {
+      users.forEach(user => {
+        //querying for getting last message related to user
+        messageModel
+        .find({
+          $or: [
+            { sender: user._id },
+            { receiver: user._id }
+          ]
+        })
+        .sort({ date: -1 })
+        .limit(1),(err,message)=>{
+          //***************  start work from here */
+          console.log(message)
+        };
+
+      });
+      
+     
+    }
+    //rending user page
+    res.render("chatapp-users", { title: "Users-Chatapp", data: users });
+  }); //end of first query
+});
 
 //route to get login page
 router.get("/login", (req, res, next) => {
@@ -72,7 +97,6 @@ router.post("/register", async (req, res) => {
 
 //Login process
 router.post("/login", async (req, res) => {
- 
   //input level validation
   const { error } = loginUserValidation(req.body);
   if (error) return res.status(400).send({ error: error.details[0].message });

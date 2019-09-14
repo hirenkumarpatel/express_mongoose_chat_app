@@ -165,17 +165,15 @@ $(() => {
   //update Message history after posting new chat
   let updateMessageHistory = data => {
     console.log(JSON.stringify(data));
-    chatHistory.append(`<a class="user-list-item" id={{this._id}}>
+    chatHistory.append(`<div class="chat-list-item ${data.messageFrom}">
     <img src="../images/avatar1.PNG" alt="Avatar" class="avatar" />
-    <div class="user-item-text">
-      <h3 class="user-title">{{this.name}}</h3>
-      <p>sample message</p>
-      <span class="chat-time">11:00 AM </span>
+    <div class="chat-item-text">
+      <p>${data.message}</p>
+      <span class="chat-time">${data.date}
+        <img src="../images/black-single-tick.png" class="chat-ticks default" />
+      </span>
     </div>
-    <div class="user-right-angle">
-      <i class="fas fa-angle-right"></i>
-    </div>
-  </a>`);
+  </div>`);
   };
 
   /** clears out form after sending it to server */

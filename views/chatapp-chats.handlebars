@@ -1,52 +1,47 @@
- <main>
-      <div class="container">
-        <section id="header-section" class="primary-color">
-          <i class="fas fa-angle-left "></i>
-          <div id="chatapp-title">
-          <img src="../images/avatar1.PNG" class="avatar" alt="Avatar" />
-            <span>{{receiver.receiverName}}</span>
-          </div>
-        </section>
-
-        <!-- chat history-->
-        <section id="chat-history-section">
-          <ul id="chat-history">
-            {{# each data}}
-            <div class="chat-list-item sender-chat">
-            <img src="../images/avatar1.PNG" alt="Avatar" class="avatar" />
-              <div class="chat-item-text">
-                <p>{{message}}</p>
-                <span class="chat-time"
-                  >11:00 AM
-                  <img src="../images/black-single-tick.png" class="chat-ticks default" />
-                </span>
-              </div>
-            </div>
-            {{/each}}
-            
-          </ul>
-        </section>
-        <!-- chat history-->
-
-        <!-- new chat section -->
-
-        <section id="footer-section">
-          <form id="chat-form" method="POST">
-            <div class="new-chat-box">
-              <input type="hidden" name="chat-receiver" id="chat-receiver" value="{{receiver.receiverId}}">
-              <input
-                type="text"
-                name="chat-input"
-                class="chat-input default"
-                id="chat-input-box"
-                autocomplete="off"
-              />
-              <button class="button-link primary-color" type="button" id="chat-send-button">
-                <i class="fas fa-paper-plane fa-rotate "></i>
-              </button>
-            </div>
-          </form>
-        </section>
-        <!-- new chat section -->
+<main>
+  <div class="container">
+    <section id="header-section" class="primary-color">
+      <i class="fas fa-angle-left "></i>
+      <div id="chatapp-title">
+        <img src="../images/avatar1.PNG" class="avatar" alt="Avatar" />
+        <span>{{receiver.receiverName}}</span>
       </div>
-    </main>
+    </section>
+
+    <!-- chat history-->
+    <section id="chat-history-section">
+      <ul id="chat-history">
+        {{#if messages}}
+        {{# each messages}}
+        <div class="chat-list-item {{this.messageFrom}}">
+          <img src="../images/avatar1.PNG" alt="Avatar" class="avatar" />
+          <div class="chat-item-text">
+            <p>{{this.message}}</p>
+            <span class="chat-time">{{this.date}}
+              <img src="../images/black-single-tick.png" class="chat-ticks default" />
+            </span>
+          </div>
+        </div>
+        {{/each}}
+        {{/if}}
+
+      </ul>
+    </section>
+    <!-- chat history-->
+
+    <!-- new chat section -->
+
+    <section id="footer-section">
+      <form id="chat-form" method="POST">
+        <div class="new-chat-box">
+          <input type="hidden" name="chat-receiver" id="chat-receiver" value="{{receiver.receiverId}}">
+          <input type="text" name="chat-input" class="chat-input default" id="chat-input-box" autocomplete="off" />
+          <button class="button-link primary-color" type="button" id="chat-send-button">
+            <i class="fas fa-paper-plane fa-rotate "></i>
+          </button>
+        </div>
+      </form>
+    </section>
+    <!-- new chat section -->
+  </div>
+</main>

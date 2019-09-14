@@ -134,12 +134,12 @@ i {
   color: #5b2c6f;
   border-radius: 15px;
 }
-.sender-chat {
+.sender{
   flex-direction: row-reverse;
   background: #a569bd;
   color: #fff;
 }
-.receiver-chat {
+.receiver{
   flex-direction: row;
   background: #1abc9c;
   color: #fff;

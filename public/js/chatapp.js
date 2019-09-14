@@ -1,3 +1,5 @@
+//created instnce of io()that will be passed to check new connection
+var socket = io();
 //Chatapp App variable intialization with Jquery
 $(() => {
   /**login and registration initialization */
@@ -15,17 +17,18 @@ $(() => {
   const chatInputbox = $(`#chat-input-box`);
   const chatSendButton = $(`#chat-send-button`);
   const chatHistory = $(`#chat-history`);
-  const chatReceiver=$(`#chat-receiver`);
+  const chatReceiver = $(`#chat-receiver`);
+  let chatTypingLabel = $(`#chat-typing-label`);
 
   /** chat user screen initialization*/
-  
+
   //get the user List Item Id to open chat accordingly
   let openUserChats = () => {
     let userId;
     //fetch the Id of user to be clicked and send to chat screen
-     $(document).delegate("#user-list>a", "click", e => {
+    $(document).delegate("#user-list>a", "click", e => {
       //assigning UserId with User List Items ID
-      userId=e.target.id;
+      userId = e.target.id;
       //redirect to user's chat screen
       window.location.replace(`http://localhost:3000/chatapp/${userId}`);
     });
@@ -132,15 +135,37 @@ $(() => {
   };
   getAllMessages();
 
+  // emitting typing.. status to receiver trigger typingMessage method in server
+  let updateTypingstatus = () => {
+    chatInputbox.on("input propertychange paste", () => {
+      if (chatInputbox.val().length > 0) {
+        socket.emit("typingMessage", "typing..");
+      } else {
+        socket.emit("typingMessage", " ");
+      }
+    });
+  };
+  //trigger update typing status method to trigger socket's emit for status
+  updateTypingstatus();
+
+  //socket event handler to handle display typing status emit from server
+  socket.on("displayTypingStatus", data => {
+    updateTypingTemplate(data);
+  });
+
+  //updateTypingTemplate will update typing labels status
+  let updateTypingTemplate = data => {
+    //change the label
+    chatTypingLabel.text(data);
+  };
+
   //send button's onClick() event handler
   chatSendButton.on("click", () => {
-    var data = { message: chatInputbox.val(),receiver:chatReceiver.val() };
+    var data = { message: chatInputbox.val(), receiver: chatReceiver.val() };
     //triggering new chat post method to save new post
     postNewMessage(data);
   });
-  //   socket.on("displayMessage", data => {
-  //     addMessage(data);
-  //   });
+
   //postNewChat() to save new chat in database
   let postNewMessage = data => {
     fetch("/", {
@@ -155,16 +180,22 @@ $(() => {
       })
       .then(data => {
         if (!data.error) {
-          //   socket.emit("message", data);
-          updateMessageHistory(data);
+          socket.emit("newMessage", data);
+          //updateMessageHistory(data);
           clearForm();
         }
       });
   };
 
+  //socket to handle displayMessage event from server
+  socket.on("displayMessage", data => {
+    //update message history to both ends
+    updateMessageHistory(data);
+  });
+
   //update Message history after posting new chat
   let updateMessageHistory = data => {
-    console.log(JSON.stringify(data));
+    //creating template for new message
     chatHistory.append(`<div class="chat-list-item ${data.messageFrom}">
     <img src="../images/avatar1.PNG" alt="Avatar" class="avatar" />
     <div class="chat-item-text">
@@ -174,6 +205,12 @@ $(() => {
       </span>
     </div>
   </div>`);
+
+  //show last appended message
+  chatHistory.animate({scrollTop: chatHistory.prop("scrollHeight")}, 500);
+
+  //update yping status
+  updateTypingTemplate('');
   };
 
   /** clears out form after sending it to server */

@@ -46,11 +46,7 @@ router.get("/chatapp/:user", requireLogin, async (req, res) => {
             receiverId: receiverId,
             receiverName: user.name
           };
-
-          console.log(data);
-
           //classifying who is sender and receiver in chat history
-
           data.forEach(message => {
             //if message from logged in user or opponent
             let messageFrom =
@@ -78,7 +74,6 @@ router.get("/chatapp/:user", requireLogin, async (req, res) => {
       }
     }
   ); //end of messageModel query
-  console.log("receiver: " + JSON.stringify(receiver));
 });
 
 //post new message
@@ -97,9 +92,6 @@ router.post("/", requireLogin, async (req, res) => {
     let db = new messageModel(message);
     let savedMessage = await db.save((err, message) => {
       if (err) return res.status(400).send({ error: err });
-      console.log("new message posted here:");
-      console.log(message);
-
       //if message from logged in user or opponent
       let messageFrom =
         message.sender == req.session.user.userId ? "sender" : "receiver";

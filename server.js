@@ -66,7 +66,7 @@ io.on("connection", socket => {
   socket.on("disconnect", () => {
     console.log(`${socket.id} user disconnected!`);
   });
-  socket.on("message", data => {
+  socket.on("newMessage", data => {
     io.emit("displayMessage", data);
   });
   socket.on("typingMessage", data => {
